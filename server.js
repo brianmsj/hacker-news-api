@@ -13,7 +13,32 @@ const app = express();
 const {Story} = require('./model');
 app.use(bodyParser.json());
 
-// API endpoints go here
+app.post('/stories/', (req, res) => {
+  const requiredFields = ['title', 'url'];
+  for (let i=0; i<requiredFields.length; i++) {
+    const field = requiredFields[i];
+    if (!(field in req.body)) {
+      const msg = `Missing ${field} in request body`
+      console.error(msg);
+      return res.status(400).send(msg);
+    }
+  }
+
+  Story
+    .create({
+      title: req.body.title,
+      url: req.body.url,
+    })
+    .then(story => res.status(201).json(story.apiRepr()))
+    .catch(err => {
+      console.error(err);
+      res.status(500).json({error: 'There is an issue'});
+    });
+});
+
+app.get('/stories', (req, res) => {
+  res.json()
+})
 
 let server;
 function runServer() {
