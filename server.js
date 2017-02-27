@@ -13,6 +13,8 @@ const app = express();
 const {Story} = require('./model');
 app.use(bodyParser.json());
 
+
+//--------------------------------------------POST---------------------------
 app.post('/stories/', (req, res) => {
   const requiredFields = ['title', 'url'];
   for (let i=0; i<requiredFields.length; i++) {
@@ -36,9 +38,30 @@ app.post('/stories/', (req, res) => {
     });
 });
 
+
 app.get('/stories', (req, res) => {
-  res.json()
-})
+  Story
+  .find().limit(3).sort({votes: -1})
+  .exec()
+  .then(stories => {
+      res.json(stories.map(story => story.apiRepr()));
+    })
+    .catch (err => {
+      console.log(err)
+      res.status(500).json({error: 'something is wrong'});
+    });
+});
+
+
+app.put('/stories/:id', (req, res) => {
+
+  Story
+  .findByIdAndUpdate(req.params.id, {$inc: {votes: 1}})
+  .exec()
+  .then(updatedStory => res.status(204).end())
+  .catch(err => res.status(500).json({message: 'No Content status, no response body'}));
+});
+
 
 let server;
 function runServer() {
