@@ -4,10 +4,7 @@ const bodyParser = require('body-parser');
 
 mongoose.Promise = global.Promise;
 
-const DATABASE_URL = process.env.DATABASE_URL ||
-                     global.DATABASE_URL ||
-                     'mongodb://localhost/hn-api';
-const PORT = process.env.PORT || 8080;
+const {DATABASE_URL, PORT} = require('./config');
 
 const app = express();
 const {Story} = require('./model');
@@ -41,7 +38,7 @@ app.post('/stories/', (req, res) => {
 
 app.get('/stories', (req, res) => {
   Story
-  .find().limit(3).sort({votes: -1})
+  .find().limit(5).sort({votes: -1})
   .exec()
   .then(stories => {
       res.json(stories.map(story => story.apiRepr()));
@@ -64,14 +61,14 @@ app.put('/stories/:id', (req, res) => {
 
 
 let server;
-function runServer() {
+function runServer(databaseUrl=DATABASE_URL, port=PORT) {
   return new Promise((resolve, reject) => {
-    mongoose.connect(DATABASE_URL, err => {
+    mongoose.connect(databaseUrl, err => {
       if (err) {
         return reject(err);
       }
-      server = app.listen(PORT, () => {
-        console.log(`Your app is listening on port ${PORT}`);
+      server = app.listen(port, () => {
+        console.log(`Your app is listening on port ${port}`);
         resolve();
       })
       .on('error', err => {
