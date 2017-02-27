@@ -62,7 +62,19 @@ describe('testing GET endpoint', function() {
         res = _res;
         res.should.have.status(200);
         res.body.should.have.length.of(topStories);
+    });
+  });
 
-    })
-  })
-})
+   it('should post a news article', function() {
+      const newStory = generateStory();
+      return chai.request(app)
+      .post('/stories')
+      .send(newStory)
+      .then(function(res) {
+        res.should.have.status(201);
+        res.should.be.json;
+        res.body.should.be.a('object');
+        res.body.should.include.keys('title','url');
+      });
+    });
+  });
