@@ -33,7 +33,7 @@ function tearDownDb() {
   return mongoose.connection.dropDatabase();
 }
 
-// describe('Hacker News API', function() {
+
   before(function() {
     return runServer(TEST_DATABASE_URL);
   });
@@ -42,14 +42,14 @@ function tearDownDb() {
     return seedData();
   });
 
-  // afterEach(function() {
-  //   return tearDownDb();
-  // });
-  //
-  // after(function() {
-  //   return closeServer();
-  // })
-//});
+  afterEach(function() {
+    return tearDownDb();
+  });
+
+  after(function() {
+    return closeServer();
+  })
+
 
 describe('testing GET endpoint', function() {
 
@@ -64,7 +64,8 @@ describe('testing GET endpoint', function() {
         res.body.should.have.length.of(topStories);
     });
   });
-
+});
+describe('POST endpoint', function() {
    it('should post a news article', function() {
       const newStory = generateStory();
       return chai.request(app)
@@ -78,3 +79,24 @@ describe('testing GET endpoint', function() {
       });
     });
   });
+describe('PUT endpoint', function() {
+  it('should add 1 to an upvote', function(){
+     let votetest;
+     let voteid;
+     return Story
+    .findOne()
+    .exec()
+    .then(function (res) {
+      votetest = res.votes
+      voteid = res.id
+     return chai.request(app)
+      .put(`/stories/${res.id}`)
+    .then(function (res) {
+      return Story.findById(voteid).exec()
+    .then(function (res) {
+      res.votes.should.equal(votetest + 1);
+    });
+   });
+  });
+});
+});
